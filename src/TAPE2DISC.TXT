@@ -8,7 +8,7 @@
 120 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
 125 :
 130 MEMORY &3FFF:DEFINT a-z
-140 code=&9000:dib=&7E00:tib=&4000
+140 code=&9000:dib=&7E00:trkload=&6000:tib=&4000
 150 LOAD "!RSX",code
 230 CALL code
 280 LOCATE 1,6
@@ -30,9 +30,9 @@
 455 :
 451 trksize=PEEK(dib+&34+(trkloop*2))+(PEEK(dib+&35+(trkloop*2))*&100)
 456 LOCATE 2,8:PRINT "Loading ";trksize;" bytes..."
-460 |CALLBCA1,tib,trksize,&16
-461 'TODO check tib is valid
-462 LOCATE 17,13:PRINT"                                          "
+458 |CALLBCA1,trkload,trksize,&16
+460 |DEEXO,trkload,tib
+462 LOCATE 17,13:PRINT"                                           "
 463 IF PEEK(tib+&10)<trkloop THEN GOTO 456
 464 IF PEEK(tib+&10)>trkloop THEN LOCATE 17,13:PRINT"Rewind the tape a bit, we've gone too far!":GOTO 456
 465 LOCATE 2,8:PRINT "                      "
@@ -59,4 +59,4 @@
 650 NEXT sctloop
 655 LOCATE 28,9:PRINT"       "
 700 NEXT trkloop
-710 OUT &EF00,0:OUT &EF00,255:PRINT:PRINT"It's complete! Your disk is now ready for use.":POKE &A8A8,0:END
+710 PRINT:PRINT"It's complete! Your disk is now ready for use.":POKE &A8A8,0:END

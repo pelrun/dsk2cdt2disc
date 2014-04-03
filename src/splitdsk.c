@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "crunch.h"
 
 void dump(char *basename, char *data, unsigned long length)
 {
@@ -68,12 +69,15 @@ int main(int argc, char *argv[])
 		for (side_num = 0; side_num < num_sides; side_num++)
 		{
 			unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
+			unsigned int crunchsize = 0;
+			
 			fread(track, tracksize, 1, fin);
-			snprintf(filename, 20, "TRACK%d%02d", side_num, track_num);
-			dump(filename, track, tracksize);
-			// TODO: compress track with exomizer here
-			tracksizetable[side_num*num_tracks+track_num] = tracksize;
-			fprintf(fout,"../2cdt -b 4000 -m 1 -w -r %s %s.BIN %s\n", filename, filename, cdtname[side_num]);
+			snprintf(filename, 20, "TRACK%d%02d.BIN", side_num, track_num);
+//			dump(filename, track, tracksize);
+			crunchsize = exo_crunch(filename, track, tracksize);
+			tracksizetable[side_num*num_tracks+track_num] = crunchsize;
+			printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, crunchsize);
+			fprintf(fout,"../2cdt -b 4000 -m 1 -w %s %s\n", filename, cdtname[side_num]);
 		}
 	}
 
