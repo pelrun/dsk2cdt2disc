@@ -7,10 +7,10 @@
 110 PRINT CHR$(149)+"                      Please wait - loading M/C segment.                      "+CHR$(149);
 120 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
 125 :
-130 MEMORY &7DFF:DEFINT a-z
-140 code=&9000:dib=&7E00:tob=&7E34:tib=&7F00:sct=&8000:' M/C and data locations
+130 MEMORY &3FFF:DEFINT a-z
+140 code=&9000:dib=&7E00:tib=&4000
 150 LOAD "!RSX",code
-230 CALL code:' activate RSX's
+230 CALL code
 280 LOCATE 1,6
 290 PRINT CHR$(149)+"Receiving DSK image:                                      Number of tracks: 00"+CHR$(149);
 300 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
@@ -18,48 +18,40 @@
 320 PRINT CHR$(149)+"                                  Sector: 00                                  "+CHR$(149);
 330 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
 340 :
-370 ' Receive disk information block
 375 LOCATE 2,8:PRINT "Loading Disk Information Block..."
-380 LOAD "!DIB",dib
+380 |CALLBCA1,dib,&100,&16
 385 LOCATE 2,8:PRINT "                                 "
-390 chk$=CHR$(PEEK(dib))+CHR$(PEEK(dib+1)):' Retrieve first two chars of dib
+390 chk$=CHR$(PEEK(dib))+CHR$(PEEK(dib+1))
 400 IF chk$<>"EX" THEN LOCATE 1,11:PRINT filename$;" isn't an Extended DSK file!":END
 410 numtracks=PEEK(dib+&30):heads=PEEK(dib+&31):LOCATE 78,6:PRINT USING "##";numtracks
 420 :
-430 ' Main Loop
 440 FOR trkloop=0 TO numtracks-1
 445 LOCATE 44,8:PRINT USING "##";trkloop
-450 trksize=PEEK(tob+trkloop)*256:IF trksize=0 THEN GOTO 700
-455 'Get Track Information Block
-456 LOCATE 2,8:PRINT "Loading Track Information Block..."
-460 LOAD "!",tib
-466 LOCATE 2,8:PRINT "                                  "
-465 :
+455 :
+456 LOCATE 28,8:PRINT "Loading"
+460 |CALLBCA1,tib,PEEK(dib+&34+trkloop)*&100,&16
+465 LOCATE 28,8:PRINT "       "
+466 :
 470 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
 480 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
 490 POKE &A89F,firstnum:POKE &A8A0,spt:POKE &A8A3,fil
 500 logbps=LOG10(rbps)/LOG10(2)-7:POKE &A8A4,logbps
 510 POKE &A8A5,bps/2:POKE &A8A8,&FF
 515 :
-520 ' Build format header string
+520 LOCATE 25,8:PRINT"Formatting"
 530 hdr$="":FOR hdrloop=0 TO spt-1
 540 hdr$=hdr$+CHR$(trkloop)+CHR$(0)+CHR$(PEEK(tib+&1A+(8*hdrloop)))+CHR$(logbps)
 550 NEXT hdrloop
-560 ' Format track
-570 LOCATE 25,8:PRINT"Formatting"
 580 |FORMAT,trkloop,@hdr$
 581 LOCATE 25,8:PRINT"          "
 585 :
-590 ' Write all sectors
+595 LOCATE 28,9:PRINT"Writing":LOCATE 44,9
+596 sct=tib+&100
 600 FOR sctloop=0 TO spt-1
-610 sctrnum=PEEK(tib+&1A+(8*sctloop)):LOCATE 44,9:PRINT HEX$(sctrnum,2)
-620 dbps=PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*256):'determine size of sector data in DSK
-625 LOCATE 2,8:PRINT "Loading Sector Data..."
-630 LOAD "!",sct
-632 LOCATE 2,8:PRINT "                      "
-635 LOCATE 28,9:PRINT"Writing"
+610 sctrnum=PEEK(tib+&1A+(8*sctloop)):PRINT HEX$(sctrnum,2);" ";
 640 |WRITESCTR,trkloop,sctrnum,sct
-645 LOCATE 28,9:PRINT"       "
+646 sct=sct+PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*256)
 650 NEXT sctloop
+655 LOCATE 28,9:PRINT"       "
 700 NEXT trkloop
 710 OUT &EF00,0:OUT &EF00,255:PRINT:PRINT"It's complete! Your disk is now ready for use.":POKE &A8A8,0:END

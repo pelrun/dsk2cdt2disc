@@ -16,10 +16,15 @@ void dump(char *basename, char *data, unsigned long length)
 	}
 }
 
+#define EDSK_DIB_NUMTRACKS  0x30
+#define EDSK_DIB_NUMSIDES   0x31
+#define EDSK_DIB_TRACKTBL   0x34
+
 int main(int argc, char *argv[])
 {
-	unsigned int num_tracks, track_num, sect_num;
+	unsigned int num_tracks, num_sides, track_num, side_num;
 	char filename[20];
+	char cdtname[2][20];
 	char dib[0x100];
 
 	FILE *fin, *fout;
@@ -29,44 +34,39 @@ int main(int argc, char *argv[])
 	{
 		return 1;
 	}
+	
+	fread(dib, 0x100, 1, fin);
+
+	num_tracks = dib[EDSK_DIB_NUMTRACKS];
+	num_sides = dib[EDSK_DIB_NUMSIDES];
+	printf("Num sides: %d\n",dib[EDSK_DIB_NUMSIDES]);
+	printf("Num tracks: %d\n",num_tracks);
 
 	fout = fopen("buildcdt.sh","w");
 
-	fprintf(fout,"../2cdt -n -F 22 -r LOADER ../TAPE2DISC.TXT disk.cdt\n");
-	fprintf(fout,"../2cdt -L 0x9000 -r RSX ../RSX.BIN disk.cdt\n");
-	
-	fread(dib, 0x100, 1, fin);
-	dump("DIB",dib,0x100);
-	fprintf(fout,"../2cdt -w -r DIB DIB.BIN disk.cdt\n");
-	
-	printf("Num sides: %d\n",dib[0x31]);
-	num_tracks = dib[0x30];
-	printf("Num tracks: %d\n",num_tracks);
+	for (side_num = 0; side_num < num_sides; side_num++)
+	{
+		// rewrite the dib to singlesided
+		snprintf(filename, 20, "DIB%d", side_num);
+		dump(filename,dib,0x100);
+		
+		snprintf(cdtname[side_num], 20, "side%d.cdt", side_num+1);
+		fprintf(fout,"../2cdt -n -F 22 -r LOADER ../TAPE2DISC.TXT %s\n", cdtname[side_num]);
+		fprintf(fout,"../2cdt -L 0x9000 -r RSX ../RSX.BIN %s\n", cdtname[side_num]);
+		fprintf(fout,"../2cdt -w -b 4000 -r %s %s.BIN %s\n", filename, cdtname[side_num]);
+	}	
 
 	for (track_num = 0; track_num < num_tracks; track_num++)
 	{
-		unsigned int num_sect;
-		char tib[0x100];
-		char sect[0x2000];
-		
-		fread(tib, 0x100, 1, fin);
-		snprintf(filename, 20, "TIB%02d", track_num);
-		dump(filename, tib, 0x100);
-		fprintf(fout,"../2cdt -w -r %s %s.BIN disk.cdt\n", filename, filename);
-
-		num_sect = tib[0x15];
-		printf("Track: %d Number of sectors: %d\n",track_num, num_sect);
-		
-		for (sect_num = 0; sect_num < num_sect; sect_num++)
+		char track[0x4000];
+		for (side_num = 0; side_num < num_sides; side_num++)
 		{
-			unsigned char sect_id = tib[(8*sect_num)+0x1A];
-			unsigned int sect_size = tib[(8*sect_num)+0x1E] + (tib[0x1F+(8*sect_num)] << 8);
-			printf("Sector: %02X Size: %d\n",sect_id,sect_size);
-			
-			fread(sect, sect_size, 1, fin);
-			snprintf(filename, 20, "SCT%02d-%02X", track_num, sect_id);
-			dump(filename, sect, sect_size);
-			fprintf(fout,"../2cdt -w -r %s %s.BIN disk.cdt\n", filename, filename);
+			unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
+					
+			fread(track, tracksize, 1, fin);
+			snprintf(filename, 20, "TRACK%d%02d", side_num, track_num);
+			dump(filename, track, tracksize);
+			fprintf(fout,"../2cdt -b 4000 -m 1 -w -r %s %s.BIN %s\n", filename, filename, cdtname[side_num]);
 		}
 	}
 
