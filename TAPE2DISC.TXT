@@ -28,10 +28,15 @@
 440 FOR trkloop=0 TO numtracks-1
 445 LOCATE 44,8:PRINT USING "##";trkloop
 455 :
-456 LOCATE 28,8:PRINT "Loading"
-460 |CALLBCA1,tib,PEEK(dib+&34+trkloop)*&100,&16
-465 LOCATE 28,8:PRINT "       "
-466 :
+451 trksize=PEEK(dib+&34+(trkloop*2))+(PEEK(dib+&35+(trkloop*2))*&100)
+456 LOCATE 2,8:PRINT "Loading ";trksize;" bytes..."
+460 |CALLBCA1,tib,trksize,&16
+461 'TODO check tib is valid
+462 LOCATE 17,13:PRINT"                                          "
+463 IF PEEK(tib+&10)<trkloop THEN GOTO 456
+464 IF PEEK(tib+&10)>trkloop THEN LOCATE 17,13:PRINT"Rewind the tape a bit, we've gone too far!":GOTO 456
+465 LOCATE 2,8:PRINT "                      "
+469 :
 470 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
 480 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
 490 POKE &A89F,firstnum:POKE &A8A0,spt:POKE &A8A3,fil
@@ -50,7 +55,7 @@
 600 FOR sctloop=0 TO spt-1
 610 sctrnum=PEEK(tib+&1A+(8*sctloop)):PRINT HEX$(sctrnum,2);" ";
 640 |WRITESCTR,trkloop,sctrnum,sct
-646 sct=sct+PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*256)
+646 sct=sct+PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*&100)
 650 NEXT sctloop
 655 LOCATE 28,9:PRINT"       "
 700 NEXT trkloop
