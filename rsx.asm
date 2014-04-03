@@ -1,7 +1,7 @@
 org &9000
 
 kl_log_ext equ &bcd1
-DEAFBCA1 equ 0
+DEAFBCA1 equ 1
 SAFEBCA1 equ 0
 DARKBCA1 equ 0
 
