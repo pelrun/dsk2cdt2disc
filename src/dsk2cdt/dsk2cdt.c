@@ -4,6 +4,17 @@
 #include <string.h>
 #include "crunch.h"
 
+#define EDSK_DIB_NUMTRACKS  0x30
+#define EDSK_DIB_NUMSIDES   0x31
+#define EDSK_DIB_TRACKTBL   0x34
+
+extern char binary___dsk2cdt_loader_txt_start[];
+extern char binary___dsk2cdt_loader_txt_end[];
+extern char binary___dsk2cdt_loader_txt_size[];
+extern char binary___dsk2cdt_rsx_bin_start[];
+extern size_t binary___dsk2cdt_rsx_bin_end[];
+extern size_t binary___dsk2cdt_rsx_bin_size[];
+
 void dump(char *basename, char *data, unsigned long length)
 {
 	FILE *fp;
@@ -18,10 +29,6 @@ void dump(char *basename, char *data, unsigned long length)
 		fclose(fp);
 	}
 }
-
-#define EDSK_DIB_NUMTRACKS  0x30
-#define EDSK_DIB_NUMSIDES   0x31
-#define EDSK_DIB_TRACKTBL   0x34
 
 int main(int argc, char *argv[])
 {
@@ -53,13 +60,23 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	// write out loader
+
+	fout = fopen("LOADER.TXT","wb");
+	fwrite(binary___dsk2cdt_loader_txt_start, (size_t)binary___dsk2cdt_loader_txt_size, 1, fout);
+	fclose(fout);
+
+	fout = fopen("RSX.BIN","wb");
+	fwrite(binary___dsk2cdt_rsx_bin_start, (size_t)binary___dsk2cdt_rsx_bin_size, 1, fout);
+	fclose(fout);
+
 	fout = fopen("buildcdt.sh","w");
 
 	for (side_num = 0; side_num < num_sides; side_num++)
 	{
 		snprintf(cdtname[side_num], 20, "side%d.cdt", side_num+1);
-		fprintf(fout,"../2cdt -n -F 22 -r LOADER ../TAPE2DISC.TXT %s\n", cdtname[side_num]);
-		fprintf(fout,"../2cdt -L 0x9000 -r RSX ../RSX.BIN %s\n", cdtname[side_num]);
+		fprintf(fout,"../2cdt -n -F 22 -r LOADER LOADER.TXT %s\n", cdtname[side_num]);
+		fprintf(fout,"../2cdt -L 0x9000 -r RSX RSX.BIN %s\n", cdtname[side_num]);
 		fprintf(fout,"../2cdt -w -b 4000 -r DIB DIB%d.BIN %s\n", side_num, cdtname[side_num]);
 	}
 
@@ -70,7 +87,7 @@ int main(int argc, char *argv[])
 		{
 			unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
 			unsigned int crunchsize = 0;
-			
+
 			fread(track, tracksize, 1, fin);
 			snprintf(filename, 20, "TRACK%d%02d.BIN", side_num, track_num);
 //			dump(filename, track, tracksize);
