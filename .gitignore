@@ -1,0 +1,5 @@
+docs/
+*.exe
+*.o
+*.BIN
+*.cdt
