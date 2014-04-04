@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "membuf.h"
 #include "membuf_io.h"
 #include "exo_helper.h"
 
-int exo_crunch(char *out_filename, char *buffer, unsigned int len)
+int exo_crunch(struct membuf *outbuf, char *buffer, unsigned int len)
 {
     int backwards_mode = 0;
     int reverse_mode = 0;
@@ -13,7 +14,6 @@ int exo_crunch(char *out_filename, char *buffer, unsigned int len)
     static struct crunch_options options[1] = { CRUNCH_OPTIONS_DEFAULT };
 
     struct membuf inbuf[1];
-    struct membuf outbuf[1];
 
 	membuf_init(inbuf);
     membuf_init(outbuf);
@@ -36,12 +36,8 @@ int exo_crunch(char *out_filename, char *buffer, unsigned int len)
     {
         reverse_buffer(membuf_get(outbuf), membuf_memlen(outbuf));
     }
-
-    write_file(out_filename, outbuf);
-    output_length = outbuf->len;
 	
-    membuf_free(outbuf);
     membuf_free(inbuf);
 
-    return output_length;
+    return outbuf->len;
 }
