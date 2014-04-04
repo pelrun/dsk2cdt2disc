@@ -35,7 +35,7 @@
 350 LOCATE 17,13:PRINT"                                           "
 360 IF PEEK(tib+&10)<trkloop THEN GOTO 320
 370 IF PEEK(tib+&10)>trkloop THEN LOCATE 17,13:PRINT"Rewind the tape a bit, we've gone too far!":GOTO 320
-380 LOCATE 2,8:PRINT "                      "
+380 LOCATE 2,8:PRINT "                       "
 390 :
 400 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
 410 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
@@ -59,4 +59,5 @@
 590 NEXT sctloop
 600 LOCATE 28,9:PRINT"       "
 610 NEXT trkloop
-620 PRINT:PRINT"It's complete! Your disk is now ready for use.":POKE &A8A8,0:END
+620 PRINT:PRINT"It's complete! Your disk is now ready for use."
+630 PRINT "Press any key to reset.":CALL &BB18:CALL 0

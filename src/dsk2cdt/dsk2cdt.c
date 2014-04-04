@@ -87,16 +87,16 @@ int main(int argc, char *argv[])
 		// write out loader
 		// TODO: insert disc name into it
 		header.filename = "LOADER";
-		header.loadAddress = 0;
-		header.execAddress = 0;
+		header.loadAddress = 0x1000;
+		header.execAddress = 0x1000;
 		header.type = 22;
-		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_loader_txt_start, (size_t)binary___dsk2cdt_loader_txt_size, 2000, header);
+		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_loader_txt_start, (size_t)binary___dsk2cdt_loader_txt_size, 2000, &header);
 
-		header.filename = "RSX.BIN";
+		header.filename = "RSX";
 		header.loadAddress = 0x9000;
-		header.execAddress = 0;
-		header.type = 1;
-		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_rsx_bin_start, (size_t)binary___dsk2cdt_rsx_bin_size, 2000, header);
+		header.execAddress = 0x1000;
+		header.type = 2;
+		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_rsx_bin_start, (size_t)binary___dsk2cdt_rsx_bin_size, 2000, &header);
 	}
 
 	// Compress all the tracks
