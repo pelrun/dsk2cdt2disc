@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 		header.filename = "RSX.BIN";
 		header.loadAddress = 0x9000;
 		header.execAddress = 0;
-		header.type = 22;
+		header.type = 1;
 		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_rsx_bin_start, (size_t)binary___dsk2cdt_rsx_bin_size, 2000, header);
 	}
 
