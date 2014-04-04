@@ -1,6 +1,9 @@
 CC = gcc
 
-VPATH := ./exomizer207/src ./2cdt/src ./dsk2cdt
+EXOMIZER_PATH = ./exomizer207
+2CDT_PATH = ./2cdt
+
+VPATH := $(EXOMIZER_PATH)/src $(2CDT_PATH)/src ./dsk2cdt
 
 SHARED_OBJS = getflag.o log.o membuf.o
 RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
@@ -8,7 +11,7 @@ RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
 
 DSK2CDT_OBJS = dsk2cdt.o crunch.o loader.o
 
-INCLUDES = -Iexomizer207/src -Idsk2cdt
+INCLUDES = -I$(EXOMIZER_PATH)/src -Idsk2cdt
 
 dsk2cdt: $(DSK2CDT_OBJS) libexo.a
 	@echo "Linking $@"
