@@ -86,10 +86,10 @@ void CDT_add_file(TZX_FILE *pTZXFile, char *data, unsigned int length, unsigned 
 		tapeHeader[CPC_TAPE_HEADER_DATA_LOCATION_LOW] = blockStart;
 		tapeHeader[CPC_TAPE_HEADER_DATA_LOCATION_HIGH] = (blockStart >> 8) & 0xFF;
 		
-		tapeHeader[CPC_TAPE_HEADER_BLOCK_NUMBER] = blockIndex;
+		tapeHeader[CPC_TAPE_HEADER_BLOCK_NUMBER] = blockIndex+1;
 		
 		CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_HEADER_SYNC, tapeHeader, CPC_TAPE_HEADER_SIZE, CPC_PAUSE_AFTER_HEADER_IN_MS);
-		CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_DATA_SYNC, data, length, CPC_PAUSE_AFTER_BLOCK_IN_MS);
+		CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_DATA_SYNC, data+blockStart, blockLength, CPC_PAUSE_AFTER_BLOCK_IN_MS);
 	}
 
 }
