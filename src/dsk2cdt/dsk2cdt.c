@@ -68,6 +68,13 @@ int main(int argc, char *argv[])
 
 	fread(dib, 0x100, 1, fin);
 
+	if (strncmp(dib,"EXTENDED CPC DSK File", 21) != 0)
+	{
+		printf("dsk2cdt requires an image in extended dsk format.\n");
+		printf("This doesn't appear to be one.\n");
+		return 1;
+	}
+
 	num_tracks = dib[EDSK_DIB_NUMTRACKS];
 	num_sides = dib[EDSK_DIB_NUMSIDES];
 	printf("Num sides: %d\n",dib[EDSK_DIB_NUMSIDES]);
