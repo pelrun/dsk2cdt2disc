@@ -3,7 +3,7 @@ CC = gcc
 EXOMIZER_PATH = ./exomizer207
 2CDT_PATH = ./2cdt
 
-VPATH := $(EXOMIZER_PATH)/src $(2CDT_PATH)/src ./dsk2cdt
+VPATH := $(EXOMIZER_PATH)/src $(2CDT_PATH)/src ./dsk2cdt-src
 
 SHARED_OBJS = getflag.o log.o membuf.o
 RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
@@ -13,7 +13,7 @@ RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
 
 DSK2CDT_OBJS = dsk2cdt.o loader.o
 
-INCLUDES = -I$(EXOMIZER_PATH)/src -I$(2CDT_PATH)/src -Idsk2cdt
+INCLUDES = -I$(EXOMIZER_PATH)/src -I$(2CDT_PATH)/src -Idsk2cdt-src
 
 CFLAGS = -g -O3
 
@@ -37,6 +37,6 @@ lib2cdt.a: $(2CDT_OBJS)
 	@$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
 
 clean:
-	rm -f *.a *.o *.exe
+	$(RM) *.a *.o *.exe
 
 .PHONY: clean

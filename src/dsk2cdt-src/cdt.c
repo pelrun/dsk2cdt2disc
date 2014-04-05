@@ -6,14 +6,18 @@
 #include "tzxfile.h"
 #include "cdt.h"
 
+// Can't just link in 2cdt.c
+// because of the static BaudRate variable
+// I'm crying.
+
 // get 2cdt.c to compile neatly on win or unix
 #ifndef _WIN32
 #define UNIX
 #endif
 
-// Can't just link in 2cdt.c
-// because of the static BaudRate variable
-// I'm crying.
+// get 2cdt.c's main() out of the way
+#define main main_2cdt
+
 #include "2cdt.c"
 
 #define CPC_DATA_SYNC 0x16
