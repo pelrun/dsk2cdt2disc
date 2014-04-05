@@ -2,7 +2,6 @@ docs/
 *.exe
 *.o
 *.a
-*.BIN
 *.cdt
 *.dsk
 src/2cdt/
