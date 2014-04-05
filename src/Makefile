@@ -1,5 +1,3 @@
-CC = gcc
-
 EXOMIZER_PATH = ./exomizer207
 2CDT_PATH = ./2cdt
 
