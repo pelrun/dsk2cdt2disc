@@ -9,16 +9,11 @@
 #include "membuf.h"
 #include "crunch.h"
 
+#include "loader.h"
+
 #define EDSK_DIB_NUMTRACKS  0x30
 #define EDSK_DIB_NUMSIDES   0x31
 #define EDSK_DIB_TRACKTBL   0x34
-
-extern char binary___dsk2cdt_loader_txt_start[];
-extern char binary___dsk2cdt_loader_txt_end[];
-extern char binary___dsk2cdt_loader_txt_size[];
-extern char binary___dsk2cdt_rsx_bin_start[];
-extern size_t binary___dsk2cdt_rsx_bin_end[];
-extern size_t binary___dsk2cdt_rsx_bin_size[];
 
 void dump(char *basename, char *data, unsigned long length)
 {
@@ -97,13 +92,13 @@ int main(int argc, char *argv[])
 		header.loadAddress = 0x1000;
 		header.execAddress = 0x1000;
 		header.type = 22;
-		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_loader_txt_start, (size_t)binary___dsk2cdt_loader_txt_size, 2000, &header);
+		CDT_add_file(pCDTFile[side_num], loader_txt_start, (size_t)loader_txt_size, 2000, &header);
 
 		header.filename = "RSX";
 		header.loadAddress = 0x9000;
 		header.execAddress = 0x1000;
 		header.type = 2;
-		CDT_add_file(pCDTFile[side_num], binary___dsk2cdt_rsx_bin_start, (size_t)binary___dsk2cdt_rsx_bin_size, 2000, &header);
+		CDT_add_file(pCDTFile[side_num], rsx_bin_start, (size_t)rsx_bin_size, 2000, &header);
 	}
 
 	// Compress all the tracks
