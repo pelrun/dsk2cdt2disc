@@ -2,6 +2,8 @@ DSK2CDT2DISC
 A silly disc imaging tool
 James Churchill/pelrun@gmail.com 1996,2014
 
+Download latest Win32 build here: [![Build Status](https://drone.io/github.com/pelrun/dsk2cdt2disc/status.png)](https://drone.io/github.com/pelrun/dsk2cdt2disc/files)
+
 Uses exomizer, 2cdt, and CALLBCA1.
 Many thanks to their authors - Magnus Lind et al, arnoldemu and cngsoft.
 
