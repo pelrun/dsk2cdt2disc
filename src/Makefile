@@ -15,9 +15,9 @@ INCLUDES = -I$(EXOMIZER_PATH)/src -I$(2CDT_PATH)/src -Idsk2cdt-src
 
 CFLAGS = -g -O3
 
-dsk2cdt: $(DSK2CDT_OBJS) libexo.a lib2cdt.a
+dsk2cdt: $(DSK2CDT_OBJS) $(2CDT_OBJS) $(RAW_OBJS) $(SHARED_OBJS)
 	@echo "Linking $@"
-	@$(CC) $(CFLAGS) $(INCLUDES) -L. -o $@ $(DSK2CDT_OBJS) -lexo -l2cdt
+	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
 
 loader.o: loader.txt rsx.bin
 	$(LD) -r -b binary -o $@ $^
@@ -26,14 +26,6 @@ rsx.bin: rsx.s
 	z80-unknown-coff-as $< -o rsx.o
 	z80-unknown-coff-objcopy rsx.o -O binary rsx-padded.bin
 	dd if=rsx-padded.bin bs=4k skip=9 of=rsx.bin
-
-libexo.a: $(RAW_OBJS) $(SHARED_OBJS)
-	@$(AR) r $@ $^
-
-# 2cdt.c has a main function we don't want, so weaken the symbols
-lib2cdt.a: $(2CDT_OBJS)
-	@$(AR) r $@ $^
-	@objcopy --weaken $@
 
 %.o:	%.c
 	@echo "Compiling $<"
