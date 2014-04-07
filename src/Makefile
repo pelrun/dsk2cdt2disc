@@ -23,8 +23,8 @@ loader.o: loader.txt rsx.bin
 	$(LD) -r -b binary -o $@ $^
 
 rsx.bin: rsx.s
-	z80-unknown-coff-as.exe $< -o rsx.o
-	z80-unknown-coff-objcopy.exe rsx.o -O binary rsx-padded.bin
+	z80-unknown-coff-as $< -o rsx.o
+	z80-unknown-coff-objcopy rsx.o -O binary rsx-padded.bin
 	dd if=rsx-padded.bin bs=4k skip=9 of=rsx.bin
 
 libexo.a: $(RAW_OBJS) $(SHARED_OBJS)
