@@ -68,22 +68,28 @@ bios_writesect:
 
 ; from www.cpcwiki.eu/forum/programming/callbca1-firmware-compatible-tape-loader/
 callbca1:
- cp $03
+ cp $04
  ret nz
 
- ld a,(ix+$02)
- ld e,(ix+$04)
- ld d,(ix+$05)
  ld l,(ix+$06)
  ld h,(ix+$07)
+ push hl
+ 
+ ld a,(ix+$00)
+ ld e,(ix+$02)
+ ld d,(ix+$03)
+ ld l,(ix+$04)
+ ld h,(ix+$05)
+
  call callbca1impl
- ld l,(ix+$00)
- ld h,(ix+$01)
+
+ pop hl
  ld a,0
- adc a,0
+ rl a ; carry into A
  ld (hl),a
  inc hl
  ld (hl),a
+
  ei
  ret
 

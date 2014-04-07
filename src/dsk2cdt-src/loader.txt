@@ -12,17 +12,17 @@
 120 LOAD "!RSX",code
 130 CALL code
 140 LOCATE 1,6
-150 PRINT CHR$(149)+"Receiving DSK image:                                      Number of tracks: 00"+CHR$(149);
+150 PRINT CHR$(149)+"                                                          Number of tracks: 00"+CHR$(149);
 160 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
 170 PRINT CHR$(149)+"                                   Track: 00                                  "+CHR$(149);
 180 PRINT CHR$(149)+"                                  Sector: 00                                  "+CHR$(149);
 190 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
 200 :
 210 LOCATE 2,8:PRINT "Loading Disk Information Block..."
-220 ret=0:|CALLBCA1,dib,&100,&16,@ret
+220 ret=0:|CALLBCA1,@ret,dib,&100,&16
 230 LOCATE 2,8:PRINT "                                 "
 240 chk$=CHR$(PEEK(dib))+CHR$(PEEK(dib+1))
-250 IF chk$<>"EX" THEN LOCATE 1,11:PRINT filename$;" isn't an Extended DSK file!":END
+250 IF chk$<>"EX" THEN LOCATE 1,11:PRINT "Invalid DIB - read error!":END
 260 numtracks=PEEK(dib+&30):heads=PEEK(dib+&31):LOCATE 78,6:PRINT USING "##";numtracks
 270 :
 280 FOR trkloop=0 TO numtracks-1
@@ -30,7 +30,7 @@
 300 trksize=PEEK(dib+&34+(trkloop*2))+(PEEK(dib+&35+(trkloop*2))*&100)
 310 :
 320 LOCATE 2,8:PRINT "Loading ";trksize;" bytes..."
-330 ret=0:|CALLBCA1,trkload,trksize,&16,@ret
+330 ret=0:|CALLBCA1,@ret,trkload,trksize,&16
 335 IF ret=0 THEN LOCATE 21,13:PRINT "Read error! Rewind the tape a bit!":GOTO 320
 340 |DEEXO,trkload,tib
 350 LOCATE 17,13:PRINT"                                           "
