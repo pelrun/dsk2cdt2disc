@@ -22,6 +22,11 @@ dsk2cdt: $(DSK2CDT_OBJS) libexo.a lib2cdt.a
 loader.o: loader.txt rsx.bin
 	$(LD) -r -b binary -o $@ $^
 
+rsx.bin: rsx.s
+	z80-unknown-coff-as.exe $< -o rsx.o
+	z80-unknown-coff-objcopy.exe rsx.o -O binary rsx-padded.bin
+	dd if=rsx-padded.bin bs=4k skip=9 of=rsx.bin
+
 libexo.a: $(RAW_OBJS) $(SHARED_OBJS)
 	@$(AR) r $@ $^
 
@@ -35,6 +40,6 @@ lib2cdt.a: $(2CDT_OBJS)
 	@$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
 
 clean:
-	$(RM) *.a *.o *.exe
+	$(RM) *.a *.o *.exe *.bin
 
 .PHONY: clean
