@@ -71,6 +71,23 @@ callbca1:
  cp $03
  ret nz
 
+ ld a,(ix+$02)
+ ld e,(ix+$04)
+ ld d,(ix+$05)
+ ld l,(ix+$06)
+ ld h,(ix+$07)
+ call callbca1impl
+ ld l,(ix+$00)
+ ld h,(ix+$01)
+ ld a,0
+ adc a,0
+ ld (hl),a
+ inc hl
+ ld (hl),a
+ ei
+ ret
+
+callbca1impl:
  di ; HL=^ADDR,DE=SIZE,A=ID; CF=OK,IX=^LAST.ADDR,ABCDEHL[HL'IY]!
 
  .if DEAFBCA1

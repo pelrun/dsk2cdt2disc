@@ -19,7 +19,7 @@
 190 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
 200 :
 210 LOCATE 2,8:PRINT "Loading Disk Information Block..."
-220 |CALLBCA1,dib,&100,&16
+220 ret=0:|CALLBCA1,dib,&100,&16,@ret
 230 LOCATE 2,8:PRINT "                                 "
 240 chk$=CHR$(PEEK(dib))+CHR$(PEEK(dib+1))
 250 IF chk$<>"EX" THEN LOCATE 1,11:PRINT filename$;" isn't an Extended DSK file!":END
@@ -30,7 +30,8 @@
 300 trksize=PEEK(dib+&34+(trkloop*2))+(PEEK(dib+&35+(trkloop*2))*&100)
 310 :
 320 LOCATE 2,8:PRINT "Loading ";trksize;" bytes..."
-330 |CALLBCA1,trkload,trksize,&16
+330 ret=0:|CALLBCA1,trkload,trksize,&16,@ret
+335 IF ret=0 THEN LOCATE 21,13:PRINT "Read error! Rewind the tape a bit!":GOTO 320
 340 |DEEXO,trkload,tib
 350 LOCATE 17,13:PRINT"                                           "
 360 IF PEEK(tib+&10)<trkloop THEN GOTO 320
