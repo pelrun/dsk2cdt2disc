@@ -86,6 +86,9 @@ int main(int argc, char *argv[])
 
 		CDT_add_pause(pCDTFile[side_num], 3000);
 
+		// Need extra delays for tapdancer.
+		CDT_set_pause_length(4000);
+
 		// write out loader
 		// TODO: insert disc name into it
 		header.filename = "LOADER";
@@ -100,6 +103,9 @@ int main(int argc, char *argv[])
 		header.type = 2;
 		CDT_add_file(pCDTFile[side_num], rsx_bin_start, (size_t)rsx_bin_size, 2000, &header);
 	}
+
+	// Need extra delays for tapdancer.
+	CDT_set_pause_length(10000);
 
 	// Compress all the tracks
 	for (track_num = 0; track_num < num_tracks; track_num++)

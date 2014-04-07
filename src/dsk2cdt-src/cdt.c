@@ -23,6 +23,13 @@
 #define CPC_DATA_SYNC 0x16
 #define CPC_HEADER_SYNC 0x2C
 
+static unsigned int post_block_pause_ms = CPC_PAUSE_AFTER_BLOCK_IN_MS;
+
+void CDT_set_pause_length(unsigned int milliseconds)
+{
+	post_block_pause_ms = milliseconds;
+}
+
 void CDT_add_pause(TZX_FILE *pTZXFile, unsigned long milliseconds)
 {
 	TZX_BLOCK *pBlock;
@@ -40,7 +47,7 @@ void CDT_add_pause(TZX_FILE *pTZXFile, unsigned long milliseconds)
 void CDT_add_headerless_file(TZX_FILE *pTZXFile, char *data, unsigned int length, unsigned int baudrate)
 {
 	BaudRate = baudrate; // ugh
-	CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_DATA_SYNC, data, length, CPC_PAUSE_AFTER_BLOCK_IN_MS);
+	CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_DATA_SYNC, data, length, post_block_pause_ms);
 }
 
 void CDT_add_file(TZX_FILE *pTZXFile, char *data, unsigned int length, unsigned int baudrate, CPCHeader *header)
@@ -101,7 +108,7 @@ void CDT_add_file(TZX_FILE *pTZXFile, char *data, unsigned int length, unsigned 
 		tapeHeader[CPC_TAPE_HEADER_BLOCK_NUMBER] = blockIndex+1;
 		
 		CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_HEADER_SYNC, tapeHeader, CPC_TAPE_HEADER_SIZE, CPC_PAUSE_AFTER_HEADER_IN_MS);
-		CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_DATA_SYNC, data+blockStart, blockLength, CPC_PAUSE_AFTER_BLOCK_IN_MS);
+		CPC_WriteTurboLoadingDataBlock(pTZXFile, CPC_DATA_SYNC, data+blockStart, blockLength, post_block_pause_ms);
 	}
 
 }
