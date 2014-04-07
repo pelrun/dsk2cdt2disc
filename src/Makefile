@@ -40,6 +40,6 @@ lib2cdt.a: $(2CDT_OBJS)
 	@$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
 
 clean:
-	$(RM) *.a *.o *.exe *.bin
+	$(RM) *.a *.o *.exe *.bin $(EXOMIZER_PATH)/src/*.o $(2CDT_PATH)/src/*.o
 
 .PHONY: clean
