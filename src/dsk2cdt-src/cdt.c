@@ -76,10 +76,12 @@ void CDT_add_file(TZX_FILE *pTZXFile, char *data, unsigned int length, unsigned 
 	if (header->filename!=NULL)
 	{
 		int i;
-		int nLength = strlen(header->filename);
-		if (nLength>16) nLength = 16;
-		for (i=0; i<nLength; i++)
+		for (i=0; i<16; i++)
 		{
+			if (header->filename[i] == 0)
+			{
+				break;
+			}
 			tapeHeader[i] = toupper(header->filename[i]);
 		}
 	}
