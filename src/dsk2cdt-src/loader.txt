@@ -54,7 +54,7 @@
 530 LOCATE 28,9:PRINT"Writing":LOCATE 44,9
 540 sct=tib+&100
 550 FOR sctloop=0 TO spt-1
-560 sctrnum=PEEK(tib+&1A+(8*sctloop)):PRINT HEX$(sctrnum,2);" ";
+560 sctrnum=PEEK(tib+&1A+(8*sctloop)):PRINT HEX$(sctrnum,2);"   ";CHR$(8);CHR$(8);
 570 |WRITESCTR,trkloop,sctrnum,sct
 580 sct=sct+PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*&100)
 590 NEXT sctloop
