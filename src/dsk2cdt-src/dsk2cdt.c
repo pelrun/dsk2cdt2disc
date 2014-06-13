@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
       
       fread(track, tracksize, 1, fin);
       // Check for and skip tracks with 0 sectors
-      if (track[0x1A]>0)
+      if (track[0x15]>0)
       {
         exo_crunch(&tracks[side_num][track_num], track, tracksize);
         printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, membuf_memlen(&tracks[side_num][track_num]));
