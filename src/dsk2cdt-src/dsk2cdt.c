@@ -66,7 +66,8 @@ unsigned int write_track_block(TZX_FILE *pTZXfile, struct membuf tracks[], int f
   int track;
   int track_count = last_track - first_track + 1;
   int block_ptr = (track_count+1) * 2; // space for pointer table at start plus 0x0000 terminator
-
+  int block_tbl_ptr = 0;
+  
   printf("writing tracks %d-%d\n", first_track, last_track);
 
   memset(blockbuf, 0, MAX_BLOCK_SIZE);
@@ -74,18 +75,18 @@ unsigned int write_track_block(TZX_FILE *pTZXfile, struct membuf tracks[], int f
   for (track = first_track; track <= last_track; track++)
   {
     int track_len = membuf_memlen(&tracks[track]);
-
-    memcpy(blockbuf+block_ptr, membuf_get(&tracks[track]), track_len);
-    blockbuf[(track-first_track)*2] = block_ptr & 0xff;
-    blockbuf[(track-first_track)*2+1] = block_ptr >> 8;
-
-    membuf_free(&tracks[track]);
     
-    block_ptr += track_len;
-    
-//    printf("adding track %d, track len %d, block len %d\n", track, track_len, block_ptr);
-  }
-  
+    if (track_len > 0) // skip null tracks
+    {
+      memcpy(blockbuf+block_ptr, membuf_get(&tracks[track]), track_len);
+      blockbuf[block_tbl_ptr++] = block_ptr & 0xff;
+      blockbuf[block_tbl_ptr++] = block_ptr >> 8;
+
+      membuf_free(&tracks[track]);
+      
+      block_ptr += track_len;
+    }
+  }  
 
   CDT_set_pause_length(track_count * PAUSE_PER_TRACK + 2000);
   CDT_add_headerless_file(pTZXfile, blockbuf, block_ptr, 4000);
@@ -139,13 +140,19 @@ int main(int argc, char *argv[])
     for (side_num = 0; side_num < num_sides; side_num++)
     {
       unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
-      unsigned char *buf;
       
       fread(track, tracksize, 1, fin);
-
-      exo_crunch(&tracks[side_num][track_num], track, tracksize);
-      printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, membuf_memlen(&tracks[side_num][track_num]));
-      buf = (unsigned char*)tracks[side_num][track_num].buf;
+      // Check for and skip tracks with 0 sectors
+      if (track[0x1A]>0)
+      {
+        exo_crunch(&tracks[side_num][track_num], track, tracksize);
+        printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, membuf_memlen(&tracks[side_num][track_num]));
+      }
+      else
+      {
+        tracks[side_num][track_num].len = 0;
+        printf("Track %02d Head %02d: skipping, no content\n", track_num, side_num);
+      }
     }
   }
 
