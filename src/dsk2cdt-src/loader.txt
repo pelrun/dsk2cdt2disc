@@ -1,64 +1,75 @@
-10 MODE 2
-20 PRINT CHR$(150)+STRING$(78,154)+CHR$(156); 
-30 PRINT CHR$(149)+"                     DSK2CDT2DISC - Silly disc image tool                     "+CHR$(149);
-40 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
-50 PRINT CHR$(149)+"                     By James Churchill  pelrun@gmail.com                     "+CHR$(149);
-60 PRINT CHR$(151)+STRING$(78,154)+CHR$(157); 
-70 PRINT CHR$(149)+"                      Please wait - loading M/C segment.                      "+CHR$(149);
-80 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
-90 :
-100 MEMORY &3FFF:DEFINT a-z
-110 code=&9000:dib=&7E00:trkload=&6000:tib=&4000
-120 LOAD "!RSX",code
-130 CALL code
-140 LOCATE 1,6
-150 PRINT CHR$(149)+"                                                          Number of tracks: 00"+CHR$(149);
-160 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
-170 PRINT CHR$(149)+"                                   Track: 00                                  "+CHR$(149);
-180 PRINT CHR$(149)+"                                  Sector: 00                                  "+CHR$(149);
-190 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
-200 :
-210 LOCATE 2,8:PRINT "Loading Disk Information Block..."
-220 ret=0:|CALLBCA1,@ret,dib,&100,&16
-230 LOCATE 2,8:PRINT "                                 "
-240 chk$=CHR$(PEEK(dib))+CHR$(PEEK(dib+1))
-250 IF chk$<>"EX" THEN LOCATE 1,11:PRINT "Invalid DIB - read error!":END
-260 numtracks=PEEK(dib+&30):heads=PEEK(dib+&31):LOCATE 78,6:PRINT USING "##";numtracks
-270 :
-280 FOR trkloop=0 TO numtracks-1
-290 LOCATE 44,8:PRINT USING "##";trkloop
-300 trksize=PEEK(dib+&34+(trkloop*2))+(PEEK(dib+&35+(trkloop*2))*&100)
-310 :
-320 LOCATE 2,8:PRINT "Loading ";trksize;" bytes..."
-330 ret=0:|CALLBCA1,@ret,trkload,trksize,&16
-335 IF ret=0 THEN LOCATE 21,13:PRINT "Read error! Rewind the tape a bit!":GOTO 320
-340 |DEEXO,trkload,tib
-350 LOCATE 17,13:PRINT"                                           "
-360 IF PEEK(tib+&10)<trkloop THEN GOTO 320
-370 IF PEEK(tib+&10)>trkloop THEN LOCATE 17,13:PRINT"Rewind the tape a bit, we've gone too far!":GOTO 320
-380 LOCATE 2,8:PRINT "                       "
-390 :
-400 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
-410 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
-420 POKE &A89F,firstnum:POKE &A8A0,spt:POKE &A8A3,fil
-430 logbps=LOG10(rbps)/LOG10(2)-7:POKE &A8A4,logbps
-440 POKE &A8A5,bps/2:POKE &A8A8,&FF
-450 :
-460 LOCATE 25,8:PRINT"Formatting"
-470 hdr$="":FOR hdrloop=0 TO spt-1
-480 hdr$=hdr$+CHR$(trkloop)+CHR$(0)+CHR$(PEEK(tib+&1A+(8*hdrloop)))+CHR$(logbps)
-490 NEXT hdrloop
-500 |FORMAT,trkloop,@hdr$
-510 LOCATE 25,8:PRINT"          "
-520 :
-530 LOCATE 28,9:PRINT"Writing":LOCATE 44,9
-540 sct=tib+&100
-550 FOR sctloop=0 TO spt-1
-560 sctrnum=PEEK(tib+&1A+(8*sctloop)):PRINT HEX$(sctrnum,2);"   ";CHR$(8);CHR$(8);
-570 |WRITESCTR,trkloop,sctrnum,sct
-580 sct=sct+PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*&100)
-590 NEXT sctloop
-600 LOCATE 28,9:PRINT"       "
-610 NEXT trkloop
-620 PRINT:PRINT"It's complete! Your disk is now ready for use."
-630 PRINT "Press any key to reset.":CALL &BB18:CALL 0
+20 MODE 2
+30 PRINT CHR$(150)+STRING$(78,154)+CHR$(156);
+40 PRINT CHR$(149)+"                     DSK2CDT2DISC - Silly disc image tool                     "+CHR$(149);
+50 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
+60 PRINT CHR$(149)+"                     By James Churchill  pelrun@gmail.com                     "+CHR$(149);
+70 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
+80 PRINT CHR$(149)+"                      Please wait - loading M/C segment.                      "+CHR$(149);
+90 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
+100 :
+110 MEMORY &1FFF:DEFINT a-z
+120 code=&9000:dib=&8E00:blkload=&2000:tib=&6000
+130 LOAD "!RSX",code
+140 CALL code
+150 LOCATE 1,6
+160 PRINT CHR$(149)+"                                                          Number of tracks: 00"+CHR$(149);
+170 PRINT CHR$(151)+STRING$(78,154)+CHR$(157);
+180 PRINT CHR$(149)+"                                   Track: 00                                  "+CHR$(149);
+190 PRINT CHR$(149)+"                                  Sector: 00                                  "+CHR$(149);
+200 PRINT CHR$(147)+STRING$(78,154)+CHR$(153);
+210 :
+220 LOCATE 2,8:PRINT "Loading Disk Information Block..."
+230 ret=0:|CALLBCA1,@ret,dib,&100,&16
+240 LOCATE 2,8:PRINT "                                 "
+250 chk$=CHR$(PEEK(dib))+CHR$(PEEK(dib+1))
+260 IF chk$<>"EX" THEN LOCATE 1,11:PRINT "Invalid DIB - read error!":END
+270 numtracks=PEEK(dib+&30):heads=PEEK(dib+&31):LOCATE 78,6:PRINT USING "##";numtracks
+280 :
+290 blocknum=0
+300 REM WHILE 1
+310 blksize=PEEK(dib+&34+(blocknum*2))+(PEEK(dib+&35+(blocknum*2))*&100)
+320 IF blksize=0 THEN GOTO 750
+330 :
+340 LOCATE 2,8:PRINT "Loading ";blksize;" bytes..."
+350 ret=0:|CALLBCA1,@ret,blkload,blksize,&16
+360 IF ret=0 THEN LOCATE 21,13:PRINT "Read error! Rewind the tape a bit!":GOTO 340
+370 :
+380 trkindex=0
+390 REM WHILE 1
+400 trkload=PEEK(blkload+(trkindex*2))+(PEEK(blkload+1+(trkindex*2))*&100)
+410 IF trkload=0 THEN GOTO 730
+420 :
+430 |DEEXO,blkload+trkload,tib
+440 trknum=PEEK(tib+&10)
+450 LOCATE 44,8:PRINT USING "##";trknum
+460 LOCATE 17,13:PRINT"                                           "
+470 LOCATE 2,8:PRINT"                       "
+480 :
+490 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
+500 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
+510 POKE &A89F,firstnum:POKE &A8A0,spt:POKE &A8A3,fil
+520 logbps=LOG10(rbps)/LOG10(2)-7:POKE &A8A4,logbps
+530 POKE &A8A5,bps/2:POKE &A8A8,&FF
+540 :
+550 LOCATE 25,8:PRINT"Formatting"
+560 hdr$="":FOR hdrloop=0 TO spt-1
+570 hdr$=hdr$+CHR$(trknum)+CHR$(0)+CHR$(PEEK(tib+&1A+(8*hdrloop)))+CHR$(logbps)
+580 NEXT hdrloop
+590 |FORMAT,trknum,@hdr$
+600 LOCATE 25,8:PRINT"          "
+610 :
+620 LOCATE 28,9:PRINT"Writing":LOCATE 44,9
+630 sct=tib+&100
+640 FOR sctloop=0 TO spt-1
+650 sctrnum=PEEK(tib+&1A+(8*sctloop)):PRINT HEX$(sctrnum,2);"   ";CHR$(8);CHR$(8);
+660 |WRITESCTR,trknum,sctrnum,sct
+670 sct=sct+PEEK(tib+&1E+(8*sctloop))+(PEEK(tib+&1F+(8*sctloop))*&100)
+680 NEXT sctloop
+690 LOCATE 28,9:PRINT"       "
+700 :
+710 trkindex=trkindex+1
+720 GOTO 390
+730 blocknum=blocknum+1
+740 GOTO 300
+750 PRINT:PRINT"It's complete! Your disc is now ready for use."
+760 PRINT "Press any key to reset.":CALL &BB18:CALL 0
