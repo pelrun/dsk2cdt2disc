@@ -205,13 +205,13 @@ int main(int argc, char *argv[])
         *dib_blocktbl_ptr++ = block_len & 0xFF;
         *dib_blocktbl_ptr++ = block_len >> 8;
 
-        block_size = 0;
+        block_size = track_len + 2;
         block_start_track = track_num;
       }
     }
 
-    if (block_size != 0)
     {
+      // write out final block
       unsigned int block_len = write_track_block(pCDTFile, tracks[side_num], block_start_track, track_num-1);
 
       // put block length in the dib
