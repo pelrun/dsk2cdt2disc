@@ -51,7 +51,7 @@ void write_dib(TZX_FILE *pTZXFile, TZX_BLOCK *pPrevBlock, char dib[])
 {
   TZX_BLOCK *pBlock;
 
-  CDT_set_pause_length(2000);
+  CDT_set_pause_length(3000);
 
   CDT_add_headerless_file(pTZXFile, dib, 0x100, BAUDRATE_HIGH);
 
@@ -88,7 +88,7 @@ unsigned int write_track_block(TZX_FILE *pTZXfile, struct membuf tracks[], int f
     }
   }  
 
-  CDT_set_pause_length(track_count * PAUSE_PER_TRACK + 2000);
+  CDT_set_pause_length(track_count * PAUSE_PER_TRACK + 4000);
   CDT_add_headerless_file(pTZXfile, blockbuf, block_ptr, 4000);
 
   return block_ptr;
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
     }
 
     CDT_add_pause(pCDTFile, 3000);
-    CDT_set_pause_length(2000);
+    CDT_set_pause_length(4000);
 
     // write out loader
     // TODO: insert disc name into it?
