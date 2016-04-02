@@ -1,9 +1,9 @@
-EXOMIZER_PATH = ./exomizer207
+EXOMIZER_PATH = ./exomizer209
 2CDT_PATH = ./2cdt
 
 VPATH := $(EXOMIZER_PATH)/src $(2CDT_PATH)/src ./dsk2cdt-src
 
-SHARED_OBJS = getflag.o log.o membuf.o
+SHARED_OBJS = getflag.o log.o membuf.o vec.o
 RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
            chunkpool.o radix.o exo_helper.o exodec.o progress.o exo_util.o crunch.o 
 
