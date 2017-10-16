@@ -40,9 +40,9 @@ extern size_t _binary___dsk2cdt_src_rsx_bin_size[];
 #define loader_txt_end     _binary___dsk2cdt_src_loader_txt_end
 #define loader_txt_size    _binary___dsk2cdt_src_loader_txt_size
 
-#define rsx_bin_start      _binary_rsx_bin_start
-#define rsx_bin_end        _binary_rsx_bin_end
-#define rsx_bin_size       _binary_rsx_bin_size
+#define rsx_bin_start      _binary___dsk2cdt_src_rsx_bin_start
+#define rsx_bin_end        _binary___dsk2cdt_src_rsx_bin_end
+#define rsx_bin_size       _binary___dsk2cdt_src_rsx_bin_size
 
 #endif
 
