@@ -7,7 +7,7 @@ SHARED_OBJS = getflag.o log.o membuf.o vec.o
 RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
            chunkpool.o radix.o exo_helper.o exodec.o progress.o exo_util.o crunch.o 
 
-2CDT_OBJS = cdt.o tzxfile.o
+2CDT_OBJS = cdt.o tzxfile.o opth.o
 
 DSK2CDT_OBJS = dsk2cdt.o loader.o
 
