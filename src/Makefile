@@ -19,7 +19,10 @@ dsk2cdt: $(DSK2CDT_OBJS) $(2CDT_OBJS) $(RAW_OBJS) $(SHARED_OBJS)
 	@echo "Linking $@"
 	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
 
-loader.o: loader.txt rsx.bin
+loader_donotedit.crlf.bin: loader.txt
+	unix2dos -n $< $@.tmp && mv -vf $@.tmp $@
+
+loader.o: loader_donotedit.crlf.bin rsx.bin
 	$(LD) -r -b binary -o $@ $^
 
 rsx.bin: rsx.s
