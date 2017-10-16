@@ -29,9 +29,9 @@ extern size_t binary_rsx_bin_size[];
 extern char _binary___dsk2cdt_src_loader_txt_start[];
 extern char _binary___dsk2cdt_src_loader_txt_end[];
 extern char _binary___dsk2cdt_src_loader_txt_size[];
-extern char _binary___dsk2cdt_src_rsx_bin_start[];
-extern size_t _binary___dsk2cdt_src_rsx_bin_end[];
-extern size_t _binary___dsk2cdt_src_rsx_bin_size[];
+extern char _binary_rsx_bin_start[];
+extern size_t _binary_rsx_bin_end[];
+extern size_t _binary_rsx_bin_size[];
 
 // the symbols out of ld are unwieldy, so make them easier to work with.
 // gcc doesn't let us do symbol aliasing with external symbols, bah
@@ -40,9 +40,9 @@ extern size_t _binary___dsk2cdt_src_rsx_bin_size[];
 #define loader_txt_end     _binary___dsk2cdt_src_loader_txt_end
 #define loader_txt_size    _binary___dsk2cdt_src_loader_txt_size
 
-#define rsx_bin_start      _binary___dsk2cdt_src_rsx_bin_start
-#define rsx_bin_end        _binary___dsk2cdt_src_rsx_bin_end
-#define rsx_bin_size       _binary___dsk2cdt_src_rsx_bin_size
+#define rsx_bin_start      _binary_rsx_bin_start
+#define rsx_bin_end        _binary_rsx_bin_end
+#define rsx_bin_size       _binary_rsx_bin_size
 
 #endif
 
