@@ -13,7 +13,7 @@ void TZX_DetachBlock(TZX_FILE *pFile,TZX_BLOCK *pBlock);
 #include "membuf.h"
 #include "crunch.h"
 
-#include "loader.h"
+#include "cpc-code.h"
 
 #define EDSK_DIB_NUMTRACKS  0x30
 #define EDSK_DIB_NUMSIDES   0x31
@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
   unsigned int num_tracks, num_sides, track_num, side_num;
   char dib[0x100];
   struct membuf tracks[MAX_HEADS][MAX_TRACKS];
+  size_t read_len;
 
   if (argc != 2)
   {
@@ -119,7 +120,11 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  fread(dib, 0x100, 1, fin);
+  if (fread(dib, 0x100, 1, fin) != 1)
+  {
+    printf("Failed to read DIB from %s\n", argv[1]);
+    exit(1);
+  }
 
   if (strncmp(dib,"EXTENDED CPC DSK File", 21) != 0)
   {
@@ -141,7 +146,12 @@ int main(int argc, char *argv[])
     {
       unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
       
-      fread(track, tracksize, 1, fin);
+      if(fread(track, tracksize, 1, fin) != 1)
+      {
+        printf("Failed to read track from %s\n", argv[1]);
+        exit(1);
+      }
+
       // Check for and skip tracks with 0 sectors
       if (track[0x15]>0)
       {
@@ -185,13 +195,13 @@ int main(int argc, char *argv[])
     header.loadAddress = 0x1000;
     header.execAddress = 0x1000;
     header.type = 22;
-    CDT_add_file(pCDTFile, loader_txt_start, (size_t)loader_txt_size, BAUDRATE_NORMAL, &header);
+    CDT_add_file(pCDTFile, loader, loader_size, BAUDRATE_NORMAL, &header);
 
     header.filename = "RSX";
     header.loadAddress = 0x9000;
     header.execAddress = 0x1000;
     header.type = 2;
-    CDT_add_file(pCDTFile, rsx_bin_start, (size_t)rsx_bin_size, BAUDRATE_NORMAL, &header);
+    CDT_add_file(pCDTFile, rsx, rsx_size, BAUDRATE_NORMAL, &header);
     
     // save this point in the tape for inserting the DIB later
     pRSXBlock = CDT_get_last_block(pCDTFile);

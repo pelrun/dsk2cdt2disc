@@ -9,7 +9,7 @@ RAW_OBJS = match.o search.o optimal.o output.o membuf_io.o \
 
 2CDT_OBJS = cdt.o tzxfile.o opth.o
 
-DSK2CDT_OBJS = dsk2cdt.o loader.o
+DSK2CDT_OBJS = dsk2cdt.o cpc-code.o
 
 INCLUDES = -I$(EXOMIZER_PATH)/src -I$(2CDT_PATH)/src -Idsk2cdt-src
 
@@ -19,13 +19,15 @@ dsk2cdt: $(DSK2CDT_OBJS) $(2CDT_OBJS) $(RAW_OBJS) $(SHARED_OBJS)
 	@echo "Linking $@"
 	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
 
-loader.o: loader.txt rsx.bin
-	$(LD) -r -b binary -o $@ $^
+cpc-code.o: cpc-code.s rsx.bin loader.bin
+	$(AS) $< $(INCLUDES) -o cpc-code.o
 
 rsx.bin: rsx.s
 	z80-unknown-coff-as $< -o rsx.o
-	z80-unknown-coff-objcopy rsx.o -O binary rsx-padded.bin
-	dd if=rsx-padded.bin bs=4k skip=9 of=rsx.bin
+	z80-unknown-coff-objcopy rsx.o -O binary $@
+
+loader.bin: loader.txt
+	unix2dos -n $< $@
 
 %.o:	%.c
 	@echo "Compiling $<"
