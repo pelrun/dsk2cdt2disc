@@ -1,0 +1,11 @@
+## To build:
+
+Requires binutils-z80 and dos2unix to be installed
+
+make thirdparty
+make
+
+Can be built for windows using gcc-mingw-w64:
+
+make CC=x86_64-w64-mingw32-gcc
+mv dsk2cdt dsk2cdt.exe
