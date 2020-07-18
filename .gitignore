@@ -4,5 +4,7 @@ docs/
 *.a
 *.cdt
 *.dsk
-src/2cdt/
-src/exomizer207
+*.bin
+thirdparty/2cdt
+thirdparty/exomizer
+dsk2cdt
