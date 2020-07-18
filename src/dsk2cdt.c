@@ -7,13 +7,16 @@
 // not exported by tzxfile.h
 void TZX_InsertBlockAfter(TZX_FILE *pFile,TZX_BLOCK *pBlock, TZX_BLOCK *pPrev);
 void TZX_DetachBlock(TZX_FILE *pFile,TZX_BLOCK *pBlock);
-
+/*  */
 #include "cdt.h"
 
 #include "membuf.h"
 #include "crunch.h"
 
-#include "cpc-code.h"
+#include "incbin.h"
+
+INCBIN(Loader, "loader.bin");
+INCBIN(Rsx, "rsx.bin");
 
 #define EDSK_DIB_NUMTRACKS  0x30
 #define EDSK_DIB_NUMSIDES   0x31
@@ -57,7 +60,7 @@ void write_dib(TZX_FILE *pTZXFile, TZX_BLOCK *pPrevBlock, char dib[])
 
   pBlock = CDT_get_last_block(pTZXFile);
   TZX_DetachBlock(pTZXFile, pBlock);
-  TZX_InsertBlockAfter(pTZXFile, pBlock, pPrevBlock); 
+  TZX_InsertBlockAfter(pTZXFile, pBlock, pPrevBlock);
 }
 
 unsigned int write_track_block(TZX_FILE *pTZXfile, struct membuf tracks[], int first_track, int last_track)
@@ -67,15 +70,15 @@ unsigned int write_track_block(TZX_FILE *pTZXfile, struct membuf tracks[], int f
   int track_count = last_track - first_track + 1;
   int block_ptr = (track_count+1) * 2; // space for pointer table at start plus 0x0000 terminator
   int block_tbl_ptr = 0;
-  
+
   printf("writing tracks %d-%d\n", first_track, last_track);
 
   memset(blockbuf, 0, MAX_BLOCK_SIZE);
-  
+
   for (track = first_track; track <= last_track; track++)
   {
     int track_len = membuf_memlen(&tracks[track]);
-    
+
     if (track_len > 0) // skip null tracks
     {
       memcpy(blockbuf+block_ptr, membuf_get(&tracks[track]), track_len);
@@ -83,10 +86,10 @@ unsigned int write_track_block(TZX_FILE *pTZXfile, struct membuf tracks[], int f
       blockbuf[block_tbl_ptr++] = block_ptr >> 8;
 
       membuf_free(&tracks[track]);
-      
+
       block_ptr += track_len;
     }
-  }  
+  }
 
   CDT_set_pause_length(track_count * PAUSE_PER_TRACK + 4000);
   CDT_add_headerless_file(pTZXfile, blockbuf, block_ptr, 4000);
@@ -145,7 +148,7 @@ int main(int argc, char *argv[])
     for (side_num = 0; side_num < num_sides; side_num++)
     {
       unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
-      
+
       if(fread(track, tracksize, 1, fin) != 1)
       {
         printf("Failed to read track from %s\n", argv[1]);
@@ -178,7 +181,7 @@ int main(int argc, char *argv[])
     char *dib_blocktbl_ptr = dib+0x34;
 
     memset(dib_blocktbl_ptr, 0, 0x100-0x34);
-    
+
     pCDTFile = TZX_CreateFile(TZX_VERSION_MAJOR,TZX_VERSION_MINOR);
     if (!pCDTFile)
     {
@@ -195,14 +198,14 @@ int main(int argc, char *argv[])
     header.loadAddress = 0x1000;
     header.execAddress = 0x1000;
     header.type = 22;
-    CDT_add_file(pCDTFile, loader, loader_size, BAUDRATE_NORMAL, &header);
+    CDT_add_file(pCDTFile, gLoaderData, gLoaderSize, BAUDRATE_NORMAL, &header);
 
     header.filename = "RSX";
     header.loadAddress = 0x9000;
     header.execAddress = 0x1000;
     header.type = 2;
-    CDT_add_file(pCDTFile, rsx, rsx_size, BAUDRATE_NORMAL, &header);
-    
+    CDT_add_file(pCDTFile, gRsxData, gRsxSize, BAUDRATE_NORMAL, &header);
+
     // save this point in the tape for inserting the DIB later
     pRSXBlock = CDT_get_last_block(pCDTFile);
 
@@ -235,7 +238,7 @@ int main(int argc, char *argv[])
       *dib_blocktbl_ptr++ = block_len & 0xFF;
       *dib_blocktbl_ptr++ = block_len >> 8;
     }
-    
+
     write_dib(pCDTFile, pRSXBlock, dib);
 
     {

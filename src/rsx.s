@@ -74,7 +74,7 @@ callbca1:
  ld l,(ix+$06)
  ld h,(ix+$07)
  push hl
- 
+
  ld a,(ix+$00)
  ld e,(ix+$02)
  ld d,(ix+$03)

@@ -2,7 +2,7 @@
 ## A silly disc imaging tool
 James Churchill/pelrun@gmail.com 1996,2014
 
-Uses exomizer, 2cdt, and CALLBCA1.  
+Uses exomizer, 2cdt, and CALLBCA1.
 Many thanks to their authors - Magnus Lind et al, arnoldemu and cngsoft.
 
 This tool lets you get a physical copy of a .dsk image, using your CPC and a tape cable.
@@ -21,3 +21,10 @@ run"
 Play the CDT with your favourite CDT/TZX tool and send the audio to the CPC using the tape cable.
 
 The loader will *not* wait or warn you about losing your disc contents!
+
+## To build:
+
+Requires binutils-z80 and unix2dos to be installed
+
+make thirdparty
+make
