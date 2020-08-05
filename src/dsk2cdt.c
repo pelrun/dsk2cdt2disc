@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <errno.h>
 
 #include "tzxfile.h"
 // not exported by tzxfile.h
@@ -149,14 +150,14 @@ int main(int argc, char *argv[])
     {
       unsigned int tracksize = dib[EDSK_DIB_TRACKTBL+(track_num*num_sides)+side_num]*0x100;
 
-      if(fread(track, tracksize, 1, fin) != 1)
+      if(tracksize > 0 && fread(track, tracksize, 1, fin) != 1)
       {
-        printf("Failed to read track from %s\n", argv[1]);
+        printf("File error %d reading from %s\n", errno, argv[1]);
         exit(1);
       }
 
       // Check for and skip tracks with 0 sectors
-      if (track[0x15]>0)
+      if (tracksize > 0 && track[0x15] > 0)
       {
         exo_crunch(&tracks[side_num][track_num], track, tracksize);
         printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, membuf_memlen(&tracks[side_num][track_num]));
