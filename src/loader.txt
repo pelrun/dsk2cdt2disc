@@ -47,7 +47,7 @@
 480 :
 490 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
 500 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
-510 POKE dpb!+&F,firstnum:POKE dpb!+&10,spt:POKE dpb!+&12,gap:POKE dpb!+&13,fil
+510 POKE dpb!+&F,firstnum:POKE dpb!+&10,spt:POKE dpb!+&11,gap:POKE dpb!+&12,gap:POKE dpb!+&13,fil
 520 logbps=LOG10(rbps)/LOG10(2)-7:POKE dpb!+&14,logbps
 530 POKE dpb!+&15,bps/2:POKE dpb!+&18,&FF
 540 :
