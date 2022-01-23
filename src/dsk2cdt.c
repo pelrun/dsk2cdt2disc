@@ -243,8 +243,10 @@ int main(int argc, char *argv[])
     write_dib(pCDTFile, pRSXBlock, dib);
 
     {
-      char cdtname[21];
-      snprintf(cdtname, 20, "side%d.cdt", side_num+1);
+      int file_name_buffer_length = strlen(argv[1])+10+1; // with the zero end-of-string marker
+      char cdtname[file_name_buffer_length];
+      snprintf(cdtname, file_name_buffer_length, "%s_side%d.cdt", argv[1], side_num+1);
+      printf("output file name %s\n", cdtname);
       TZX_WriteFile(pCDTFile, cdtname);
       TZX_FreeFile(pCDTFile);
     }
