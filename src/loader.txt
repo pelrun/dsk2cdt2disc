@@ -45,11 +45,11 @@
 460 LOCATE 17,13:PRINT SPC(43)
 470 LOCATE 2,8:PRINT SPC(23)
 480 :
-490 bps=PEEK(tib+&14):rbps=bps*&100:spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
+490 spt=PEEK(tib+&15):gap=PEEK(tib+&16):fil=PEEK(tib+&17)
 500 firstnum=&100:FOR i=0 TO spt-1:firstnum=MIN(firstnum,PEEK(tib+&1A+(8*i))):NEXT
 510 POKE dpb!+&F,firstnum:POKE dpb!+&10,spt:POKE dpb!+&11,gap:POKE dpb!+&12,gap:POKE dpb!+&13,fil
-520 logbps=LOG10(rbps)/LOG10(2)-7:POKE dpb!+&14,logbps
-530 POKE dpb!+&15,bps/2:POKE dpb!+&18,&FF
+520 logbps=PEEK(tib+&14):POKE dpb!+&14,logbps:POKE dpb!+&15,2^logbps
+530 POKE dpb!+&18,&FF
 540 :
 550 LOCATE 25,8:PRINT"Formatting"
 560 hdr$="":FOR hdrloop=0 TO spt-1
