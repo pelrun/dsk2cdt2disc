@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#define __USE_GNU
 #include <string.h>
 #include <errno.h>
 
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
   {
     printf("Usage: dsk2cdt <image.dsk>\n");
     printf("     Creates CDTs that rebuild a disc image when run.\n");
-    printf("     Outputs sideN.cdt for each disc side in the image.\n");
+    printf("     Outputs a separate CDT for each disc side in the image.\n");
     exit(1);
   }
 
@@ -265,7 +266,7 @@ int main(int argc, char *argv[])
     {
       int file_name_buffer_length = strlen(argv[1])+10+1; // with the zero end-of-string marker
       char cdtname[file_name_buffer_length];
-      snprintf(cdtname, file_name_buffer_length, "%s_side%d.cdt", argv[1], side_num+1);
+      snprintf(cdtname, file_name_buffer_length, "%s_side%d.cdt", basename(argv[1]), side_num+1);
       printf("output file name %s\n", cdtname);
       TZX_WriteFile(pCDTFile, cdtname);
       TZX_FreeFile(pCDTFile);
