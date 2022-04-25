@@ -23,6 +23,13 @@ INCBIN(Rsx, "rsx.bin");
 #define EDSK_DIB_NUMSIDES   0x31
 #define EDSK_DIB_TRACKTBL   0x34
 
+#define EDSK_TIB_SECTORLBPS 0x14
+#define EDSK_TIB_SECTORCOUNT 0x15
+#define EDSK_TIB_SECTORINFO 0x18
+
+#define EDSK_SIB_LENGTH     0x08
+#define EDSK_SIB_LOGBPS     0x3
+
 void dump(char *basename, char *data, unsigned long length)
 {
   FILE *fp;
@@ -157,15 +164,28 @@ int main(int argc, char *argv[])
       }
 
       // Check for and skip tracks with 0 sectors
-      if (tracksize > 0 && track[0x15] > 0)
-      {
-        exo_crunch(&tracks[side_num][track_num], track, tracksize);
-        printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, membuf_memlen(&tracks[side_num][track_num]));
-      }
-      else
+      if (tracksize == 0 || track[EDSK_TIB_SECTORCOUNT] == 0)
       {
         tracks[side_num][track_num].len = 0;
         printf("Track %02d Head %02d: skipping, no content\n", track_num, side_num);
+      }
+      else
+      {
+        // detect and fix a TIB with an unset logbps field (looking at you Red Sunset)
+        if (track[EDSK_TIB_SECTORLBPS] == 0)
+        {
+          uint8_t max_logbps = 0;
+          for (int s = 0; s < track[EDSK_TIB_SECTORCOUNT]; s++)
+          {
+            uint8_t sector_logbps = track[EDSK_TIB_SECTORINFO + EDSK_SIB_LOGBPS + EDSK_SIB_LENGTH*s];
+            max_logbps = sector_logbps > max_logbps ? sector_logbps : max_logbps;
+          }
+          track[EDSK_TIB_SECTORLBPS] = max_logbps;
+          printf("Corrected track %d side %d logbps value to %d\n", track_num, side_num, max_logbps);
+        }
+
+        exo_crunch(&tracks[side_num][track_num], track, tracksize);
+        printf("Track %02d Head %02d: Size: %d bytes Packed: %d bytes\n", track_num, side_num, tracksize, membuf_memlen(&tracks[side_num][track_num]));
       }
     }
   }
