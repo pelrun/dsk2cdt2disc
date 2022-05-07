@@ -24,4 +24,7 @@ run"
 ```
 Play the CDT with your favourite CDT/TZX tool and send the audio to the CPC using the tape cable.
 
+Some TZX apps may not correctly handle the generated CDT's; if you get "read errors" try another tool.
+I have a webapp at https://pelrun.github.io/PlayUEF/PlayUEF.html that is known to work well.
+
 The loader will *not* wait or warn you about losing your disc contents!
