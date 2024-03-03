@@ -222,6 +222,8 @@ int main(int argc, char *argv[])
     header.type = 22;
     CDT_add_file(pCDTFile, gLoaderData, gLoaderSize, BAUDRATE_NORMAL, &header);
 
+    CDT_add_pause(pCDTFile, 2000);
+
     header.filename = "RSX";
     header.loadAddress = 0x9000;
     header.execAddress = 0x1000;
