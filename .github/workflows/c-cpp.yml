@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: sudo apt -y install binutils-z80 dos2unix gcc-mingw-w64
     - run: make thirdparty
     - run: CC=x86_64-w64-mingw32-gcc make
     - run: if [ -e dsk2cdt ] ; then mv dsk2cdt dsk2cdt.exe ; fi && mv readme.md readme.txt
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: dsk2cdt
         path: |
